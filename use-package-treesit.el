@@ -56,345 +56,238 @@
 (require 'treesit)
 (require 'use-package-core)
 (eval-when-compile
-  (require 'cl-lib))
+  (require 'cl-lib)
+  (require 'cl-macs)
+  (require 'gv))
 
 (cl-defstruct use-package-treesit-recipe
   "Emacs metadata for a treesit language grammar."
-  lang ts-mode remap requires url revision source-dir cc c++ ext)
+  lang mode url revision source-dir cc c++)
 
 (defvar use-package-treesit-recipes
   `(,(make-use-package-treesit-recipe
       :lang 'awk
-      :ts-mode 'awk-ts-mode
-      :remap 'awk-mode
-      :url "https://github.com/Beaglefoot/tree-sitter-awk"
-      :ext "\\.awk\\'")
+      :mode 'awk-ts-mode
+      :url "https://github.com/Beaglefoot/tree-sitter-awk")
     ,(make-use-package-treesit-recipe
       :lang 'bash
-      :ts-mode 'bash-ts-mode
-      :remap 'sh-mode
-      :url "https://github.com/tree-sitter/tree-sitter-bash"
-      :ext "\\.sh\\'")
+      :mode 'bash-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-bash")
     ,(make-use-package-treesit-recipe
       :lang 'bibtex
-      :ts-mode 'bibtex-ts-mode
-      :remap 'bibtex-mode
-      :url "https://github.com/latex-lsp/tree-sitter-bibtex"
-      :ext "\\.bib\\'")
+      :mode 'bibtex-ts-mode
+      :url "https://github.com/latex-lsp/tree-sitter-bibtex")
     ,(make-use-package-treesit-recipe
       :lang 'blueprint
-      :ts-mode 'blueprint-ts-mode
-      :remap 'blueprint-mode
-      :url "https://github.com/huanie/tree-sitter-blueprint"
-      :ext "\\.blp\\'")
+      :mode 'blueprint-ts-mode
+      :url "https://github.com/huanie/tree-sitter-blueprint")
     ,(make-use-package-treesit-recipe
       :lang 'c
-      :ts-mode 'c-ts-mode
-      :remap 'c-mode
-      :url "https://github.com/tree-sitter/tree-sitter-c"
-      :ext "\\.c\\'")
+      :mode 'c-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-c")
     ,(make-use-package-treesit-recipe
       :lang 'c-sharp
-      :ts-mode 'csharp-ts-mode
-      :remap 'csharp-mode
-      :url "https://github.com/tree-sitter/tree-sitter-c-sharp"
-      :ext "\\.cs\\'")
+      :mode 'csharp-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-c-sharp")
     ,(make-use-package-treesit-recipe
       :lang 'clojure
-      :ts-mode 'clojure-ts-mode
-      :remap '(clojure-mode clojurescript-mode clojurec-mode)
-      :url "https://github.com/sogaiu/tree-sitter-clojure"
-      :ext "\\.cljc?s?d?\\'")
+      :mode 'clojure-ts-mode
+      :url "https://github.com/sogaiu/tree-sitter-clojure")
     ,(make-use-package-treesit-recipe
       :lang 'cmake
-      :ts-mode 'cmake-ts-mode
-      :remap 'cmake-mode
-      :url "https://github.com/uyha/tree-sitter-cmake"
-      :ext "\\.cmake\\'")
+      :mode 'cmake-ts-mode
+      :url "https://github.com/uyha/tree-sitter-cmake")
     ,(make-use-package-treesit-recipe
       :lang 'commonlisp
-      :ts-mode 'commonlisp-ts-mode
-      :remap 'common-lisp-mode
-      :url "https://github.com/tree-sitter-grammars/tree-sitter-commonlisp"
-      :ext "\\.cl\\'")
+      :mode 'commonlisp-ts-mode
+      :url "https://github.com/tree-sitter-grammars/tree-sitter-commonlisp")
     ,(make-use-package-treesit-recipe
       :lang 'cpp
-      :ts-mode 'c++-ts-mode
-      :remap 'c++-mode
-      :url "https://github.com/tree-sitter/tree-sitter-cpp"
-      :ext "\\.cpp\\'")
+      :mode 'c++-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-cpp")
     ,(make-use-package-treesit-recipe
       :lang 'css
-      :ts-mode 'css-ts-mode
-      :remap 'css-mode
-      :url "https://github.com/tree-sitter/tree-sitter-css"
-      :ext "\\.css\\'")
+      :mode 'css-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-css")
     ,(make-use-package-treesit-recipe
       :lang 'dart
-      :ts-mode 'dart-ts-mode
-      :remap 'dart-mode
-      :url "https://github.com/ast-grep/tree-sitter-dart"
-      :ext "\\.dart\\'")
+      :mode 'dart-ts-mode
+      :url "https://github.com/ast-grep/tree-sitter-dart")
     ,(make-use-package-treesit-recipe
       :lang 'dockerfile
-      :ts-mode 'dockerfile-ts-mode
-      :remap 'dockerfile-mode
-      :url "https://github.com/camdencheek/tree-sitter-dockerfile"
-      :ext "[/\\]\\(?:Containerfile\\|Dockerfile\\)\\(?:\\.[^/\\]*\\)?\\'")
+      :mode 'dockerfile-ts-mode
+      :url "https://github.com/camdencheek/tree-sitter-dockerfile")
     ,(make-use-package-treesit-recipe
       :lang 'elixir
-      :ts-mode 'elixir-ts-mode
-      :remap 'elixir-mode
-      :requires 'heex
-      :url "https://github.com/elixir-lang/tree-sitter-elixir"
-      :ext "\\.ex\\'")
+      :mode 'elixir-ts-mode
+      :url "https://github.com/elixir-lang/tree-sitter-elixir")
     ,(make-use-package-treesit-recipe
       :lang 'glsl
-      :ts-mode 'glsl-ts-mode
-      :remap 'glsl-mode
+      :mode 'glsl-ts-mode
       :url "https://github.com/tree-sitter-grammars/tree-sitter-glsl")
     ,(make-use-package-treesit-recipe
       :lang 'go
-      :ts-mode 'go-ts-mode
-      :remap 'go-mode
-      :requires 'gomod
-      :url "https://github.com/tree-sitter/tree-sitter-go"
-      :ext "\\.go\\'")
+      :mode 'go-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-go")
     ,(make-use-package-treesit-recipe
       :lang 'gomod
-      :ts-mode 'go-mod-ts-mode
-      :remap 'go-mod-mode
-      :requires 'go
-      :url "https://github.com/camdencheek/tree-sitter-go-mod"
-      :ext "go\\.mod\\'")
+      :mode 'go-mod-ts-mode
+      :url "https://github.com/camdencheek/tree-sitter-go-mod")
     ,(make-use-package-treesit-recipe
       :lang 'heex
-      :ts-mode 'heex-ts-mode
-      :remap 'heex-mode
-      :url "https://github.com/phoenixframework/tree-sitter-heex"
-      :ext "\\.heex\\'")
+      :mode 'heex-ts-mode
+      :url "https://github.com/phoenixframework/tree-sitter-heex")
     ,(make-use-package-treesit-recipe
       :lang 'html
-      :ts-mode 'html-ts-mode
-      :remap '(mhtml-mode sgml-mode)
-      :url "https://github.com/tree-sitter/tree-sitter-html"
-      :ext "\\.html\\'")
+      :mode 'html-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-html")
     ,(make-use-package-treesit-recipe
       :lang 'janet
-      :ts-mode 'janet-ts-mode
-      :remap 'janet-mode
-      :url "https://github.com/sogaiu/tree-sitter-janet-simple"
-      :ext "\\.janet\\'")
+      :mode 'janet-ts-mode
+      :url "https://github.com/sogaiu/tree-sitter-janet-simple")
     ,(make-use-package-treesit-recipe
       :lang 'java
-      :ts-mode 'java-ts-mode
-      :remap 'java-mode
-      :url "https://github.com/tree-sitter/tree-sitter-java"
-      :ext "\\.java\\'")
+      :mode 'java-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-java")
     ,(make-use-package-treesit-recipe
       :lang 'javascript
-      :ts-mode 'js-ts-mode
-      :remap '(js-mode javascript-mode js2-mode)
+      :mode 'js-ts-mode
       :url "https://github.com/tree-sitter/tree-sitter-javascript"
       :revision "master"
-      :source-dir "src"
-      :ext "\\.js\\'")
+      :source-dir "src")
     ,(make-use-package-treesit-recipe
       :lang 'json
-      :ts-mode 'json-ts-mode
-      :remap 'js-json-mode
-      :url "https://github.com/tree-sitter/tree-sitter-json"
-      :ext "\\.json\\'")
+      :mode 'json-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-json")
     ,(make-use-package-treesit-recipe
       :lang 'julia
-      :ts-mode 'julia-ts-mode
-      :remap 'julia-mode
-      :url "https://github.com/tree-sitter/tree-sitter-julia"
-      :ext "\\.jl\\'")
+      :mode 'julia-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-julia")
     ,(make-use-package-treesit-recipe
       :lang 'kotlin
-      :ts-mode 'kotlin-ts-mode
-      :remap 'kotlin-mode
-      :url "https://github.com/fwcd/tree-sitter-kotlin"
-      :ext "\\.kts?\\'")
+      :mode 'kotlin-ts-mode
+      :url "https://github.com/fwcd/tree-sitter-kotlin")
     ,(make-use-package-treesit-recipe
       :lang 'latex
-      :ts-mode 'latex-ts-mode
-      :remap 'latex-mode
-      :url "https://github.com/latex-lsp/tree-sitter-latex"
-      :ext "\\.tex\\'")
+      :mode 'latex-ts-mode
+      :url "https://github.com/latex-lsp/tree-sitter-latex")
     ,(make-use-package-treesit-recipe
       :lang 'lua
-      :ts-mode 'lua-ts-mode
-      :remap 'lua-mode
-      :url "https://github.com/tree-sitter-grammars/tree-sitter-lua"
-      :ext "\\.lua\\'")
+      :mode 'lua-ts-mode
+      :url "https://github.com/tree-sitter-grammars/tree-sitter-lua")
     ,(make-use-package-treesit-recipe
       :lang 'magik
-      :ts-mode 'magik-ts-mode
-      :remap 'magik-mode
-      :url "https://github.com/krn-robin/tree-sitter-magik"
-      :ext "\\.magik\\'")
+      :mode 'magik-ts-mode
+      :url "https://github.com/krn-robin/tree-sitter-magik")
     ,(make-use-package-treesit-recipe
       :lang 'make
-      :ts-mode 'makefile-ts-mode
-      :remap 'makefile-mode
-      :url "https://github.com/tree-sitter-grammars/tree-sitter-make"
-      :ext "\\([Mm]akefile\\|.*\\.\\(mk\\|make\\)\\)\\'")
+      :mode 'makefile-ts-mode
+      :url "https://github.com/tree-sitter-grammars/tree-sitter-make")
     ,(make-use-package-treesit-recipe
       :lang 'markdown
-      :ts-mode 'markdown-ts-mode
-      :remap '(poly-markdown-mode markdown-mode)
-      :url "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
-      :ext "\\.md\\'")
+      :mode 'markdown-ts-mode
+      :url "https://github.com/tree-sitter-grammars/tree-sitter-markdown")
     ,(make-use-package-treesit-recipe
       :lang 'nix
-      :ts-mode 'nix-ts-mode
-      :remap 'nix-mode
-      :url "https://github.com/nix-community/tree-sitter-nix"
-      :ext "\\.nix\\'")
+      :mode 'nix-ts-mode
+      :url "https://github.com/nix-community/tree-sitter-nix")
     ,(make-use-package-treesit-recipe
       :lang 'nu
-      :ts-mode 'nushell-ts-mode
-      :remap 'nushell-mode
-      :url "https://github.com/nushell/tree-sitter-nu"
-      :ext "\\.nu\\'")
+      :mode 'nushell-ts-mode
+      :url "https://github.com/nushell/tree-sitter-nu")
     ,(make-use-package-treesit-recipe
       :lang 'org
-      :ts-mode 'org-ts-mode
-      :remap 'org-mode
-      :url "https://github.com/milisims/tree-sitter-org"
-      :ext "\\.org\\'")
+      :mode 'org-ts-mode
+      :url "https://github.com/milisims/tree-sitter-org")
     ,(make-use-package-treesit-recipe
       :lang 'perl
-      :ts-mode 'perl-ts-mode
-      :remap 'perl-mode
-      :url "https://github.com/ganezdragon/tree-sitter-perl"
-      :ext "\\.pl\\'")
+      :mode 'perl-ts-mode
+      :url "https://github.com/ganezdragon/tree-sitter-perl")
     ,(make-use-package-treesit-recipe
       :lang 'proto
-      :ts-mode 'protobuf-ts-mode
-      :remap 'protobuf-mode
-      :url "https://github.com/mitchellh/tree-sitter-proto"
-      :ext "\\.proto\\'")
+      :mode 'protobuf-ts-mode
+      :url "https://github.com/mitchellh/tree-sitter-proto")
     ,(make-use-package-treesit-recipe
       :lang 'python
-      :ts-mode 'python-ts-mode
-      :remap 'python-mode
-      :url "https://github.com/tree-sitter/tree-sitter-python"
-      :ext "\\.py[iw]?\\'")
+      :mode 'python-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-python")
     ,(make-use-package-treesit-recipe
       :lang 'r
-      :ts-mode 'r-ts-mode
-      :remap 'ess-mode
-      :url "https://github.com/r-lib/tree-sitter-r"
-      :ext "\\.r\\'")
+      :mode 'r-ts-mode
+      :url "https://github.com/r-lib/tree-sitter-r")
     ,(make-use-package-treesit-recipe
       :lang 'ruby
-      :ts-mode 'ruby-ts-mode
-      :remap 'ruby-mode
-      :url "https://github.com/tree-sitter/tree-sitter-ruby"
-      :ext "\\(?:\\.\\(?:rbw?\\|ru\\|rake\\|thor\\|jbuilder\\|rabl\\|gemspec\\|podspec\\)\\|/\\(?:Gem\\|Rake\\|Cap\\|Thor\\|Puppet\\|Berks\\|Brew\\|Vagrant\\|Guard\\|Pod\\)file\\)\\'")
+      :mode 'ruby-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-ruby")
     ,(make-use-package-treesit-recipe
       :lang 'rust
-      :ts-mode 'rust-ts-mode
-      :remap 'rust-mode
-      :url "https://github.com/tree-sitter/tree-sitter-rust"
-      :ext "\\.rs\\'")
+      :mode 'rust-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-rust")
     ,(make-use-package-treesit-recipe
       :lang 'scala
-      :ts-mode 'scala-ts-mode
-      :remap 'scala-mode
-      :url "https://github.com/tree-sitter/tree-sitter-scala"
-      :ext "\\.\\(scala\\|sbt\\)\\'")
+      :mode 'scala-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-scala")
     ,(make-use-package-treesit-recipe
       :lang 'sql
-      :ts-mode 'sql-ts-mode
-      :remap 'sql-mode
+      :mode 'sql-ts-mode
       :revision "gh-pages"
-      :url "https://github.com/DerekStride/tree-sitter-sql"
-      :ext "\\.sql\\'")
+      :url "https://github.com/DerekStride/tree-sitter-sql")
     ,(make-use-package-treesit-recipe
       :lang 'surface
-      :ts-mode 'surface-ts-mode
-      :remap 'surface-mode
+      :mode 'surface-ts-mode
       :url "https://github.com/connorlay/tree-sitter-surface")
     ,(make-use-package-treesit-recipe
       :lang 'toml
-      :ts-mode 'toml-ts-mode
-      :remap '(conf-toml-mode toml-mode)
-      :url "https://github.com/tree-sitter/tree-sitter-toml"
-      :ext "\\.toml\\'")
+      :mode 'toml-ts-mode
+      :url "https://github.com/tree-sitter/tree-sitter-toml")
     ,(make-use-package-treesit-recipe
       :lang 'tsx
-      :ts-mode 'tsx-ts-mode
-      :remap '(typescript-tsx-mode)
-      :requires 'typescript
+      :mode 'tsx-ts-mode
       :url "https://github.com/tree-sitter/tree-sitter-typescript"
       :revision "master"
-      :source-dir "tsx/src"
-      :ext "\\.tsx\\'")
+      :source-dir "tsx/src")
     ,(make-use-package-treesit-recipe
       :lang 'typescript
-      :ts-mode 'typescript-ts-mode
-      :remap 'typescript-mode
-      :requires 'tsx
+      :mode 'typescript-ts-mode
       :url "https://github.com/tree-sitter/tree-sitter-typescript"
       :revision "master"
-      :source-dir "typescript/src"
-      :ext "\\.ts\\'")
+      :source-dir "typescript/src")
     ,(make-use-package-treesit-recipe
       :lang 'typst
-      :ts-mode 'typst-ts-mode
-      :remap 'typst-mode
+      :mode 'typst-ts-mode
       :url "https://github.com/uben0/tree-sitter-typst"
       :revision "master"
-      :source-dir "src"
-      :ext "\\.typ\\'")
+      :source-dir "src")
     ,(make-use-package-treesit-recipe
       :lang 'verilog
-      :ts-mode 'verilog-ts-mode
-      :remap 'verilog-mode
-      :url "https://github.com/gmlarumbe/tree-sitter-verilog"
-      :ext "\\.s?vh?\\'")
+      :mode 'verilog-ts-mode
+      :url "https://github.com/gmlarumbe/tree-sitter-verilog")
     ,(make-use-package-treesit-recipe
       :lang 'vhdl
-      :ts-mode 'vhdl-ts-mode
-      :remap 'vhdl-mode
-      :url "https://github.com/alemuller/tree-sitter-vhdl"
-      :ext "\\.vhdl?\\'")
+      :mode 'vhdl-ts-mode
+      :url "https://github.com/alemuller/tree-sitter-vhdl")
     ,(make-use-package-treesit-recipe
       :lang 'vue
-      :ts-mode 'vue-ts-mode
-      :remap 'vue-mode
-      :url "https://github.com/tree-sitter-grammars/tree-sitter-vue"
-      :ext "\\.vue\\'")
+      :mode 'vue-ts-mode
+      :url "https://github.com/tree-sitter-grammars/tree-sitter-vue")
     ,(make-use-package-treesit-recipe
       :lang 'wast
-      :ts-mode 'wat-ts-wast-mode
-      :remap 'wat-mode
+      :mode 'wat-ts-wast-mode
       :url "https://github.com/wasm-lsp/tree-sitter-wasm"
-      :source-dir "wast/src"
-      :ext "\\.wast\\'")
+      :source-dir "wast/src")
     ,(make-use-package-treesit-recipe
       :lang 'wat
-      :ts-mode 'wat-ts-mode
-      :remap 'wat-mode
+      :mode 'wat-ts-mode
       :url "https://github.com/wasm-lsp/tree-sitter-wasm"
-      :source-dir "wat/src"
-      :ext "\\.wat\\'")
+      :source-dir "wat/src")
     ,(make-use-package-treesit-recipe
       :lang 'wgsl
-      :ts-mode 'wgsl-ts-mode
-      :remap 'wgsl-mode
-      :url "https://github.com/mehmetoguzderin/tree-sitter-wgsl"
-      :ext "\\.wgsl\\'")
+      :mode 'wgsl-ts-mode
+      :url "https://github.com/mehmetoguzderin/tree-sitter-wgsl")
     ,(make-use-package-treesit-recipe
       :lang 'yaml
-      :ts-mode 'yaml-ts-mode
-      :remap 'yaml-mode
-      :url "https://github.com/tree-sitter-grammars/tree-sitter-yaml"
-      :ext "\\.ya?ml\\'"))
+      :mode 'yaml-ts-mode
+      :url "https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
   "All the treesit languages that `use-package-treesit' can install automatically.")
 
 (defvar use-package-treesit-keyword :treesit)
@@ -403,25 +296,58 @@
   (list name-symbol))
 
 (defun use-package-handler/:treesit (name-symbol _keyword _args rest state)
-  (let* ((body (use-package-process-keywords name-symbol rest state))
-         (new-body (use-package-concat
-                    body
-                    `((message "`use-package-treesit' was there")))))
-    (message "Body after `use-package-treesit': %S" new-body)
-    new-body))
+  (let ((body (use-package-process-keywords name-symbol rest state)))
+    (use-package-concat
+     body
+     `((use-package-treesit/prepare-auto-install ',name-symbol)))))
+
+(defun use-package-treesit/recipe-of-mode (mode)
+  "Find a match for MODE in the variable `use-package-treesit-recipes'."
+  (cl-find-if (lambda (it) (eq (use-package-treesit-recipe-mode it) mode))
+              use-package-treesit-recipes))
+
+(defun use-package-treesit/prepare-auto-install (mode)
+  "Arrange for MODE's treesit grammar to be lazily installed.
+
+Add the match for MODE in `use-package-treesit-recipes' into the
+variable `treesit-language-source-alist', where
+`use-package-treesit/maybe-install-lazy' will pick it up."
+  (when-let ((r (use-package-treesit/recipe-of-mode mode)))
+    (setf (alist-get (use-package-treesit-recipe-lang r)
+                     treesit-language-source-alist)
+          (list (use-package-treesit-recipe-url r)
+                (use-package-treesit-recipe-revision r)
+                (use-package-treesit-recipe-source-dir r)
+                (use-package-treesit-recipe-cc r)
+                (use-package-treesit-recipe-c++ r)))))
+
+(defun use-package-treesit/maybe-install-lazy (language &rest _ignored)
+  "If so configured, install LANGUAGE just before it will be required.
+
+This function is used as before advice on core Emacs `treesit-ready-p'
+and `treesit-parser-create' functions."
+  (cond ((treesit-language-available-p language))
+        ((assoc language treesit-language-source-alist)
+         (progn
+           (message "Installing the treesit grammar for %s" language)
+           (treesit-install-language-grammar language)))))
 
 (defun use-package-treesit/configure ()
   "Configure `use-package' for the `:treesit' keyword.
 
 Insert the `:treesit' keyword (or whatever the value of the variable
 `use-package-treesit-keyword' is) into the variable
-`use-package-keywords' at the proper place, unless it is already there."
+`use-package-keywords' at the proper place, unless it is already there.
+Place before-advice on `treesit-ready-p' and `treesit-parser-create'
+functions, so as to install the grammars before running them."
   (unless (member use-package-treesit-keyword use-package-keywords)
     (setq use-package-keywords
           (let* ((before-pos (cl-position :custom use-package-keywords))
                  (head (cl-subseq use-package-keywords 0 before-pos))
                  (tail (nthcdr before-pos use-package-keywords)))
-            (append head `(,use-package-treesit-keyword) tail)))))
+            (append head `(,use-package-treesit-keyword) tail))))
+  (advice-add 'treesit-ready-p :before #'use-package-treesit/maybe-install-lazy)
+  (advice-add 'treesit-parser-create :before #'use-package-treesit/maybe-install-lazy))
 
 (use-package-treesit/configure)
 
