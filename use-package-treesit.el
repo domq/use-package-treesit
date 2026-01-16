@@ -58,6 +58,7 @@
 (eval-when-compile
   (require 'cl-lib)
   (require 'cl-macs)
+  (require 'map)
   (require 'gv))
 
 (defvar use-package-treesit-recipes
@@ -235,30 +236,33 @@
 
 (defun use-package-treesit/recipe-of-mode (mode)
   "Find a match for MODE in the variable `use-package-treesit-recipes'."
-  (cl-find-if (lambda (it) (eq (plist-get it :mode) mode))
-              use-package-treesit-recipes))
+  (let ((recipe (cl-find-if (lambda (it) (eq (plist-get it :mode) mode))
+                             use-package-treesit-recipes)))
+    (map-delete (copy-sequence recipe) :mode)))
 
 (defvar use-package-treesit-keyword :treesit)
 
 (defun use-package-normalize/:treesit (name-symbol _keyword _args)
-  (list name-symbol))
+  (use-package-treesit/recipe-of-mode name-symbol))
 
-(defun use-package-handler/:treesit (name-symbol _keyword _args rest state)
-  (let ((body (use-package-process-keywords name-symbol rest state)))
+(defun use-package-handler/:treesit (name-symbol _keyword args rest state)
+  (let ((body (use-package-process-keywords name-symbol rest state))
+        (args-quoted
+         (apply #'nconc (map-apply
+                         (lambda (k v) (list k (if (symbolp v) `',v v)))
+                         args))))
     (use-package-concat
      body
-     `((use-package-treesit/prepare-auto-install ',name-symbol)))))
+     `((use-package-treesit/prepare-auto-install ,@args-quoted)))))
 
-(defun use-package-treesit/prepare-auto-install (mode)
+(defun use-package-treesit/prepare-auto-install (&rest recipe)
   "Arrange for MODE's treesit grammar to be lazily installed.
 
-Add the match for MODE in `use-package-treesit-recipes' into the
-variable `treesit-language-source-alist', where
+Add RECIPE into the variable `treesit-language-source-alist', where
 `use-package-treesit/maybe-install-lazy' will pick it up."
-  (when-let ((r (use-package-treesit/recipe-of-mode mode)))
-    (setf (alist-get (plist-get r :lang) treesit-language-source-alist)
-          (mapcar (lambda (c) (plist-get r c))
-                  '(:url :revision :source-dir :cc :c++)))))
+  (setf (alist-get (plist-get recipe :lang) treesit-language-source-alist)
+        (mapcar (lambda (c) (plist-get recipe c))
+                '(:url :revision :source-dir :cc :c++))))
 
 (defun use-package-treesit/maybe-install-lazy (language &rest _ignored)
   "If so configured, install LANGUAGE just before it will be required.
