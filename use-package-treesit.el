@@ -4,8 +4,9 @@
 ;; Copyright (C) 2026 École Polytechnique Fédérale de Lausanne (EPFL)
 
 ;; Author: Dominique Quatravaux <dominique@quatravaux.org>
-;; Keywords: tree-sitter treesit auto automatic use-package
+;; Keywords: lisp tree-sitter treesit auto automatic use-package
 ;; URL: https://github.com/domq/use-package-treesit.git
+;; Package-Version: 20260116.1
 ;; Package-Requires: ((emacs "30.0"))
 
 ;; This file is not part of GNU Emacs.
@@ -62,7 +63,6 @@
 (require 'use-package-core)
 (eval-when-compile
   (require 'cl-lib)
-  (require 'cl-macs)
   (require 'map)
   (require 'gv))
 
@@ -241,8 +241,8 @@
 
 (defun use-package-treesit/recipe-of-mode (mode)
   "Find a match for MODE in the variable `use-package-treesit-recipes'."
-  (let ((recipe (cl-find-if (lambda (it) (eq (plist-get it :mode) mode))
-                             use-package-treesit-recipes)))
+  (let ((recipe (cl-find-if #'(lambda (it) (eq (plist-get it :mode) mode))
+                            use-package-treesit-recipes)))
     (map-delete (copy-sequence recipe) :mode)))
 
 (defvar use-package-treesit-keyword :treesit)
@@ -260,7 +260,7 @@
   (let ((body (use-package-process-keywords name-symbol rest state))
         (args-quoted
          (apply #'nconc (map-apply
-                         (lambda (k v) (list k (if (symbolp v) `',v v)))
+                         #'(lambda (k v) (list k (if (symbolp v) `',v v)))
                          args))))
     (use-package-concat
      body
@@ -272,7 +272,7 @@
 Add RECIPE into the variable `treesit-language-source-alist', where
 `use-package-treesit/maybe-install-lazy' will pick it up."
   (setf (alist-get (plist-get recipe :lang) treesit-language-source-alist)
-        (mapcar (lambda (c) (plist-get recipe c))
+        (mapcar #'(lambda (c) (plist-get recipe c))
                 '(:url :revision :source-dir :cc :c++))))
 
 (defun use-package-treesit/maybe-install-lazy (language &rest _ignored)
