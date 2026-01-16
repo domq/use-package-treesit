@@ -34,12 +34,17 @@
 ;; `:defer', `:mode', `:commands' or any of the other keywords that
 ;; cause deferred loading).
 ;;
-;; The `:treesit' keyword may take additional arguments in the future
-;; (to be specified and implemented later). The default (and right
-;; now, only) behavior is to download and compile the tree-sitter
-;; grammar out of a location taken from the
-;; `use-package-treesit-recipes`, using Emacs 30+'s built-in
-;; mechanisms. Specifically,
+;; The `:treesit' keyword accepts at most one plist of arguments, with
+;; the same keys as in the `use-package-treesit-recipes` i.e `:lang`,
+;; `:url`, `:source-dir`, `:cc` or `:c++` (all others, including
+;; `:mode` are ignored). These can amend the settings in variable
+;; `use-package-treesit-recipes' for the package being configured, or
+;; outright replace it if the package is not known in that variable.
+;;
+;; Using the `:treesit' keyword in an `use-package' stanza, lazily
+;; prepares to download and compile the tree-sitter grammar out of a
+;; location taken from the `use-package-treesit-recipes`, using Emacs
+;; 30+'s built-in mechanisms. Specifically,
 ;;
 ;; - at the time the `use-package' stanza is evaluated, and provided
 ;;   the target package is available (or equivalently, in the same
@@ -242,8 +247,14 @@
 
 (defvar use-package-treesit-keyword :treesit)
 
-(defun use-package-normalize/:treesit (name-symbol _keyword _args)
-  (use-package-treesit/recipe-of-mode name-symbol))
+(defun use-package-normalize/:treesit (name-symbol _keyword args)
+  (when (> (length args) 1)
+    (error ":treesit arguments should be in a list"))
+  (let* ((default-recipe (use-package-treesit/recipe-of-mode name-symbol))
+         (ret (map-merge 'plist default-recipe (car-safe args))))
+    (cond (ret)
+          (t (error "No default configuration known for treesit grammar %s"
+                    name-symbol)))))
 
 (defun use-package-handler/:treesit (name-symbol _keyword args rest state)
   (let ((body (use-package-process-keywords name-symbol rest state))
