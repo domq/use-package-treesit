@@ -239,7 +239,7 @@
      :url "https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
   "All the treesit languages that `use-package-treesit' can install automatically.")
 
-(defun use-package-treesit/recipe-of-mode (mode)
+(defun use-package-treesit--recipe-of-mode (mode)
   "Find a match for MODE in the variable `use-package-treesit-recipes'."
   (let ((recipe (cl-find-if #'(lambda (it) (eq (plist-get it :mode) mode))
                             use-package-treesit-recipes)))
@@ -250,7 +250,7 @@
 (defun use-package-normalize/:treesit (name-symbol _keyword args)
   (when (> (length args) 1)
     (error ":treesit arguments should be in a list"))
-  (let* ((default-recipe (use-package-treesit/recipe-of-mode name-symbol))
+  (let* ((default-recipe (use-package-treesit--recipe-of-mode name-symbol))
          (ret (map-merge 'plist default-recipe (car-safe args))))
     (cond (ret)
           (t (error "No default configuration known for treesit grammar %s"
@@ -264,18 +264,18 @@
                          args))))
     (use-package-concat
      body
-     `((use-package-treesit/prepare-auto-install ,@args-quoted)))))
+     `((use-package-treesit--prepare-auto-install ,@args-quoted)))))
 
-(defun use-package-treesit/prepare-auto-install (&rest recipe)
+(defun use-package-treesit--prepare-auto-install (&rest recipe)
   "Arrange for MODE's treesit grammar to be lazily installed.
 
 Add RECIPE into the variable `treesit-language-source-alist', where
-`use-package-treesit/maybe-install-lazy' will pick it up."
+`use-package-treesit--maybe-install-lazy' will pick it up."
   (setf (alist-get (plist-get recipe :lang) treesit-language-source-alist)
         (mapcar #'(lambda (c) (plist-get recipe c))
                 '(:url :revision :source-dir :cc :c++))))
 
-(defun use-package-treesit/maybe-install-lazy (language &rest _ignored)
+(defun use-package-treesit--maybe-install-lazy (language &rest _ignored)
   "If so configured, install LANGUAGE just before it will be required.
 
 This function is used as before advice on core Emacs `treesit-ready-p'
@@ -286,7 +286,7 @@ and `treesit-parser-create' functions."
            (message "Installing the treesit grammar for %s" language)
            (treesit-install-language-grammar language)))))
 
-(defun use-package-treesit/configure ()
+(defun use-package-treesit--configure ()
   "Configure `use-package' for the `:treesit' keyword.
 
 Insert the `:treesit' keyword (or whatever the value of the variable
@@ -300,10 +300,10 @@ functions, so as to install the grammars before running them."
                  (head (cl-subseq use-package-keywords 0 before-pos))
                  (tail (nthcdr before-pos use-package-keywords)))
             (append head `(,use-package-treesit-keyword) tail))))
-  (advice-add 'treesit-ready-p :before #'use-package-treesit/maybe-install-lazy)
-  (advice-add 'treesit-parser-create :before #'use-package-treesit/maybe-install-lazy))
+  (advice-add 'treesit-ready-p :before #'use-package-treesit--maybe-install-lazy)
+  (advice-add 'treesit-parser-create :before #'use-package-treesit--maybe-install-lazy))
 
-(use-package-treesit/configure)
+(use-package-treesit--configure)
 
 (provide 'use-package-treesit)
 ;;; use-package-treesit.el ends here
