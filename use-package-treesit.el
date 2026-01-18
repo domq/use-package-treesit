@@ -61,7 +61,7 @@
 
 (require 'treesit)
 (require 'use-package-core)
-(eval-when-compile
+(eval-and-compile
   (require 'cl-lib)
   (require 'map)
   (require 'gv))
