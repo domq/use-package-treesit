@@ -248,6 +248,15 @@
 (defvar use-package-treesit-keyword :treesit)
 
 (defun use-package-normalize/:treesit (name-symbol _keyword args)
+  "`use-package' argument parser for the `:treesit' keyword.
+
+NAME-SYMBOL is the name of the “regular” (Emacs Lisp) being configured
+\(i.e. the first argument to the surrounding `use-package' stanza.) ARGS
+is the list of arguments (sexps) situated between `:treesit' and the
+next `use-package' keyword, or the end of the `use-package' stanza.
+There should be no more than one element in ARGS, and (if one is
+present) it should be a plist with the same keywords as an element of
+the variable `use-package-treesit-recipes'."
   (when (> (length args) 1)
     (error ":treesit arguments should be in a list"))
   (let* ((default-recipe (use-package-treesit--recipe-of-mode name-symbol))
@@ -257,6 +266,11 @@
                     name-symbol)))))
 
 (defun use-package-handler/:treesit (name-symbol _keyword args rest state)
+  "`use-package' handler for the `:treesit' keyword.
+
+ARGS is the value returned previously by `use-package-normalize/:treesit'.
+NAME-SYMBOL, REST and STATE are passed to `use-package-process-keywords`
+as-is."
   (let ((body (use-package-process-keywords name-symbol rest state))
         (args-quoted
          (apply #'nconc (map-apply
