@@ -136,6 +136,9 @@
     (:lang julia
      :library julia-ts-mode
      :url "https://github.com/tree-sitter/tree-sitter-julia")
+    (:lang just
+     :mode just-ts-mode
+     :url "https://github.com/IndianBoy42/tree-sitter-just")
     (:lang kotlin
      :library kotlin-ts-mode
      :url "https://github.com/fwcd/tree-sitter-kotlin")
